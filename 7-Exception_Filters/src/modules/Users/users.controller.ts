@@ -20,8 +20,6 @@ import { CustomForbiddenException } from '../Shared/ExceptionFilters/forbidden.e
 @Controller('users')
 @UseFilters(new HttpExceptionFilter())
 export class UsersController {
-  // Dependency injection, recommended for low coupling
-  // Inject UsersService and ProductsService
   constructor(
     private userService: UserService,
     private productsService: ProductsService,
