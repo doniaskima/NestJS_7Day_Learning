@@ -7,24 +7,25 @@ import {
   Param,
   HttpStatus,
   Body,
-  UseFilters,
+  NotFoundException,
   UseGuards,
   UseInterceptors,
+  UseFilters,
 } from '@nestjs/common';
 import { CreateUserDTO } from './DTO/create-users.dto';
-import { ProductsService } from '../Products/Services/products.service';
-import { CustomForbiddenException } from '../Shared/ExceptionFilters/forbidden.exception';
+import { ProductsService } from '../products/services/products.service';
+import { UserService } from './Services/users.service';
 import { HttpExceptionFilter } from '../Shared/ExceptionFilters/http-exception.filter';
-import { ValidationPipe } from '../Shared/Pipes/validation.pipe';
+import { CustomForbiddenException } from '../Shared/ExceptionFilters/forbidden.exception';
 import { ParseIntPipe } from '../Shared/Pipes/parse-int.pipe';
+import { ValidationPipe } from '../Shared/Pipes/validation.pipe';
 import { RolesGuard } from '../Shared/Guards/roles.guard';
 import { Roles } from '../Shared/decorators/roles.decorator';
 import { LoggingInterceptor } from '../Shared/Interceptors/logging.interceptor';
 import { TransformInterceptor } from '../Shared/Interceptors/transform.interceptor';
 import { ExceptionInterceptor } from '../Shared/Interceptors/exception.interceptor';
-import { UserService } from './Services/users.service';
 
-@Controller()
+@Controller('users')
 @UseGuards(RolesGuard)
 @UseFilters(new HttpExceptionFilter())
 export class UsersController {
@@ -33,8 +34,9 @@ export class UsersController {
     private productsService: ProductsService,
   ) {}
 
-  @Get('users')
+  @Get()
   @Roles('admin')
+  // Using Express request and response objects
   async getAllUsers(@Req() req, @Res() res) {
     try {
       const users = await this.userService.getAllUsers();
@@ -45,11 +47,14 @@ export class UsersController {
     }
   }
 
-  @Get('users/:id')
+  @Get(':id')
   @Roles('general')
-  async getUser(@Res() res, @Param('id', ParseIntPipe) id) {
+  async getUser(@Res() res, @Param('id', new ParseIntPipe()) id) {
     try {
-      const user = await this.userService.getUser(id);
+      const user = await this.userService.getUser(+id); // Convert 'id' to a number
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       res.status(HttpStatus.OK).json(user);
     } catch (error) {
       console.error(error);
@@ -72,6 +77,7 @@ export class UsersController {
     }
   }
 
+  // Test if ProductsService can be used correctly
   @Get('testProducts')
   async testGetAllProducts(@Req() req, @Res() res) {
     try {
