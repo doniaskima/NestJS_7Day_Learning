@@ -1,7 +1,5 @@
 # Pipes in NestJS
 
-![Pipe Image](Pipe_1 (1).png)
-
 ## Introduction
 
 Pipes in NestJS are a fundamental concept used for input validation, data transformation, and other data processing tasks. They allow you to process the data that flows through your application in a structured and configurable manner.

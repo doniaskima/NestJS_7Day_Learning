@@ -16,6 +16,8 @@ import { ProductsService } from '../products/services/products.service';
 import { UserService } from './Services/users.service';
 import { HttpExceptionFilter } from '../Shared/ExceptionFilters/http-exception.filter';
 import { CustomForbiddenException } from '../Shared/ExceptionFilters/forbidden.exception';
+import { ParseIntPipe } from '../Shared/Pipes/parse-int.pipe';
+import { ValidationPipe } from '../Shared/Pipes/validation.pipe';
 
 @Controller('users')
 @UseFilters(new HttpExceptionFilter())
@@ -38,7 +40,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUser(@Res() res, @Param('id') id) {
+  async getUser(@Res() res, @Param('id', new ParseIntPipe()) id) {
     try {
       const user = await this.userService.getUser(+id); // Convert 'id' to a number
       if (!user) {
@@ -52,7 +54,10 @@ export class UsersController {
   }
 
   @Post()
-  async addUser(@Res() res, @Body() createUserDTO: CreateUserDTO) {
+  async addUser(
+    @Res() res,
+    @Body(new ValidationPipe()) createUserDTO: CreateUserDTO,
+  ) {
     try {
       const users = await this.userService.addUser(createUserDTO);
       res.status(HttpStatus.OK).json(users);
