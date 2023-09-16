@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+
+    <title>Chat</title>
+</head>
+<body>
+    <%= title %>
+    <script>    
+        console.log("Creating socket object...");
+        const socket = io('ws://localhost:81');
+        console.log("Socket object created:", socket);
+        console.log("Hello")
+        socket.on('connect', function() {
+            console.log('Socket connected:', socket.id);
+        });
+        
+        socket.on('wannaChat', function(response) {
+            console.log('Received message:', response);
+        });
+        
+        socket.on('exception', function(data) {
+            console.log('Exception:', data);
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Socket disconnected');
+        });
+        
+    </script>
+</body>
+</html>

@@ -15,3 +15,4 @@ export class ApplicationModule implements NestModule {
       .forRoutes({ path: 'chat', method: RequestMethod.GET });
   }
 }
+
