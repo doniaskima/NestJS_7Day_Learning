@@ -6,6 +6,11 @@ This repository showcases the integration of WebSocket functionality in a NestJS
 
 Gateways in NestJS are classes annotated with `@WebSocketGateway()` decorator. They provide a platform-agnostic way of handling WebSocket connections and interactions. NestJS supports multiple WebSocket platforms, such as socket.io and ws.
 
+| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| --- | --- | --- |
+| ![Screenshot 1](ScreenShot/Gateways_1.png) | ![Screenshot 2](ScreenShot/Gateway_2.png) | ![Screenshot 3](ScreenShot/getway_3.png) |
+
+
 ## Installation
 
 To start building WebSockets-based applications, first install the required packages:

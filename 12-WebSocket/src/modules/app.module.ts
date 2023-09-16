@@ -1,4 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ChatModule } from './chat/chat.module';
 import { ChatController } from './chat/chat.controller';
 import { LoggerMiddleware } from './shared/middlewares/logger.middleware';
@@ -15,4 +20,3 @@ export class ApplicationModule implements NestModule {
       .forRoutes({ path: 'chat', method: RequestMethod.GET });
   }
 }
-

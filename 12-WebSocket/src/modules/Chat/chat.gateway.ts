@@ -1,38 +1,24 @@
+// chat.gateway.ts
+
 import {
     WebSocketGateway,
-    SubscribeMessage,
     WebSocketServer,
-    WsResponse,
-    WsException,
+    SubscribeMessage,
   } from '@nestjs/websockets';
-
   
-  // WebSocket listens on port 81
   @WebSocketGateway(81)
-  
   export class ChatGateway {
     @WebSocketServer() server;
-    constructor() {
-        console.log('WebSocketGateway initialized');
-      }
-    // Subscribe to event named 'wannaChat'
+  
+    handleConnection(client) {
+      console.log('Client connected:', client.id);
+      // Emit the 'wannaChat' event to the connected client
+      client.emit('wannaChat', { message: 'Hello from server!' });
+    }
+  
     @SubscribeMessage('wannaChat')
-    onEvent(client, message): WsResponse<string> {
-      // Event to listen to
-      const event = 'wannaChat';
-      // Receive the message from the client
-      console.log(message);
-      // Prepare a response message for the client
-      const response = `Hi, I'm Chat Server.`;
-      /* Structure of WsResponse interface
-      export interface WsResponse<T> {
-        event: string;
-        data: T;
-      }
-      */
-      // Push the message to the specified event, where the data is the message we want to push
-      // This approach is similar to sending a response after an HTTP POST request
-      return { event, data: response };
+    handleWannaChat(client, message) {
+      console.log('Received message:', message);
     }
   }
   
