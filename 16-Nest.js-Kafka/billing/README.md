@@ -1,73 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Billing Microservice
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project represents a microservice that handles billing functionalities within a larger microservices architecture.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## AppController
 
-## Description
+The `AppController` defines the HTTP routes and event handlers for this microservice. It interacts with the `AppService` to handle requests and events.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **HTTP GET**: Retrieves a hello message.
+- **Kafka Event ('order_created')**: Handles the event when an order is created.
 
-## Installation
+```typescript
+@Controller()
+export class AppController implements OnModuleInit {
+  constructor(
+    private readonly appService: AppService,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientKafka,
+  ) {}
 
-```bash
-$ npm install
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+
+  @EventPattern('order_created')
+  handleOrderCreated(data: any) {
+    this.appService.handleOrderCreated(data.value);
+  }
+
+  onModuleInit() {
+    this.authClient.subscribeToResponseOf('get_user');
+  }
+}
 ```
 
-## Running the app
+## AppController
 
-```bash
-# development
-$ npm run start
+The AppService handles business logic, including communicating with the authentication service through Kafka.
 
-# watch mode
-$ npm run start:dev
+Kafka Request ('get_user'): Sends a request to get user information when handling an order creation event.
 
-# production mode
-$ npm run start:prod
+```typescript
+@Injectable()
+export class AppService {
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientKafka,
+  ) {}
+
+  getHello(): string {
+    return 'Hello World!';
+  }
+
+  handleOrderCreated(orderCreatedEvent: OrderCreatedEvent) {
+    // Send a request to get user information based on the event's userId
+    this.authClient
+      .send('get_user', new GetUserRequest(orderCreatedEvent.userId))
+      .subscribe((user) => {
+        console.log(
+          `Billing user with stripe ID ${user.stripeUserId} a price of $${orderCreatedEvent.price}...`,
+        );
+      });
+  }
+}
+
 ```
 
-## Test
+##  AppModule and Bootstrap
 
-```bash
-# unit tests
-$ npm run test
+The AppModule configures the microservice to connect to Kafka and sets up the required options.*
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+```typescript
+// NestJS and Kafka microservices initialization
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.KAFKA,
+      options: {
+        client: {
+          brokers: ['localhost:9092'],
+        },
+        consumer: {
+          groupId: 'billing-consumer',
+        },
+      },
+    },
+  );
+  app.listen();
+}
+bootstrap();
+
 ```
 
-## Support
+## OrderCreatedEvent
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Represents an event when an order is created.
 
-## Stay in touch
+```typescript
+export class OrderCreatedEvent {
+  constructor(
+    public readonly orderId: string,
+    public readonly userId: string,
+    public readonly price: number,
+  ) {}
+}
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+```
+The OrderCreatedEvent class encapsulates the order details.
 
-Nest is [MIT licensed](LICENSE).
+This microservice communicates with the authentication service through Kafka, subscribing to events and handling order creations.
