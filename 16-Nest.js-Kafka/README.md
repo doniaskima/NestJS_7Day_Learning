@@ -44,4 +44,4 @@ Integrating Apache Kafka with NestJS allows for seamless interaction with Kafka 
    Install the necessary NestJS Kafka package(s) using npm or yarn:
    ```bash
    npm install @nestjs/microservices kafka-node
-  ```
+   ```
