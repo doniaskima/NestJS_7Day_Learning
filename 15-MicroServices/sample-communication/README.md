@@ -1,73 +1,103 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## sample-communication Project Explanation:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+In this project, you're creating a Nest.js application that acts as a communication microservice.
 
-## Description
+# app.controller.ts: 
+Defines the main controller for handling HTTP requests and listening for events based on the route. It has a route for handling GET requests.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+```typescript
+import { Controller, Get } from '@nestjs/common';
+import { EventPattern } from '@nestjs/microservices';
+import { AppService } from './app.service';
+import { CreateUserEvent } from './create-user.event';
 
-```bash
-$ npm install
+@Controller()  // Decorator to define a controller
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()  // Decorator for handling HTTP GET requests at the root route '/'
+  getHello(): string {
+    return this.appService.getHello();  // Calls a service method to get a "Hello World!" message
+  }
+
+  @EventPattern('user_created')  // Event listener for 'user_created' event
+  handleUserCreated(data: CreateUserEvent) {
+    this.appService.handleUserCreated(data);  // Calls a service method to handle the 'user_created' event
+  }
+}
+
+
 ```
 
-## Running the app
+# app.service.ts: 
+Defines the service containing the business logic. It interacts with the event data and handles the 'user_created' event.
 
-```bash
-# development
-$ npm run start
+```typescript
+import { Injectable } from '@nestjs/common';
+import { CreateUserEvent } from './create-user.event';
 
-# watch mode
-$ npm run start:dev
+@Injectable()  // Decorator to indicate that this class can be injected into other components
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';  // Returns a "Hello World!" message
+  }
 
-# production mode
-$ npm run start:prod
+  handleUserCreated(data: CreateUserEvent) {
+    console.log('handlerUserCreated - COMMUNICATIONS', data);
+    // TODO: Implement email functionality to notify the user...
+  }
+}
+
 ```
 
-## Test
+## create-user.event.ts:
+ Defines an event class for creating a user.
 
-```bash
-# unit tests
-$ npm run test
+ ```typescript
+export class CreateUserEvent {
+  constructor(public readonly email: string) {}
+}
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Support
+## app.module.ts: 
+Configures the Nest.js application module, registering necessary controllers, services, and microservices.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+ ```typescript
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
-## Stay in touch
+@Module({
+  imports: [],  // No imports for this module
+  controllers: [AppController],  // Specifies the controllers used in this module
+  providers: [AppService],  // Specifies the providers (services) used in this module
+})
+export class AppModule {}
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
 
-## License
+## main.ts:
+Bootstraps the Nest.js application as a microservice using TCP transport.
 
-Nest is [MIT licensed](LICENSE).
+ ```typescript
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.TCP,
+    },
+  );
+  app.listen();
+}
+bootstrap();
+
+```
+
+In summary, the sample-communication microservice handles HTTP requests and listens for the 'user_created' event to perform actions based on the event data. This separation of concerns allows for a scalable and modular application structure.

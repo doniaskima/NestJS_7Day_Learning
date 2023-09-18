@@ -1,144 +1,71 @@
-# NestJS Microservices Example
+# Sample Analytics
 
-This readme provides an overview and example of implementing microservices in NestJS using the `@nestjs/microservices` package.
+## Purpose:
+The `sample-analytics` project is focused on handling analytics-related functionality within a microservices architecture.
+- It listens for events related to user creation (`user_created`) and collects analytics data based on these events.
+- It provides an API to retrieve the collected analytics data.
 
-## Overview
+## Key Components:
+- **AppController**: Defines HTTP routes and event handlers (user creation, analytics retrieval).
+- **AppService**: Handles business logic, including handling user creation events and managing analytics data.
+- **CreateUserEvent**: Event class representing the creation of a user.
+- **AppModule**: Configures the Nest.js application module, registering controllers and services.
+- **main.ts**: Bootstraps the Nest.js application as a microservice, connecting via TCP and listening on port 3001.
 
-In addition to traditional monolithic application architectures, Nest natively supports the microservice architectural style of development. This section covers the aspects of Nest that are specific to microservices.
+## Order of Execution:
+1. The Nest.js application is bootstrapped as a microservice.
+2. The application starts listening for events (e.g., `user_created`) and exposes an API to retrieve analytics.
+3. When a `user_created` event is received, analytics data is updated.
 
-In Nest, a microservice is fundamentally an application that uses a different transport layer than HTTP.
+# Sample Backend
 
-Nest supports several built-in transport layer implementations, called transporters, which are responsible for transmitting messages between different microservice instances. These transporters natively support both request-response and event-based message styles.
+## Purpose:
+The `sample-backend` project represents a backend service within a microservices architecture.
+- It handles HTTP requests related to user creation and analytics retrieval.
+- It emits events related to user creation to other microservices (communication and analytics).
 
-## Installation
+## Key Components:
+- **AppController**: Defines HTTP routes for handling user creation, analytics retrieval, and a basic hello message.
+- **AppService**: Handles business logic, including creating users and emitting events for user creation.
+- **CreateUserRequest**: DTO (Data Transfer Object) representing the request to create a user.
+- **CreateUserEvent**: Event class representing the creation of a user.
+- **AppModule**: Configures the Nest.js application module, registering controllers and services.
+- **main.ts**: Bootstraps the Nest.js application.
 
-To start building microservices, first install the required package:
+## Order of Execution:
+1. The Nest.js application is bootstrapped.
+2. The application starts listening for HTTP requests related to user creation and analytics retrieval.
+3. When a user is created, events related to user creation are emitted to other microservices (communication and analytics).
 
-```bash
-$ npm i --save @nestjs/microservices
-```
+# Sample Communication
 
-## Getting Started
+## Purpose:
+The `sample-communication` project represents a communication microservice within a microservices architecture.
+- It handles HTTP requests and listens for events related to user creation.
 
-To instantiate a microservice, use the createMicroservice() method of the NestFactory class:
+## Key Components:
+- **AppController**: Defines HTTP routes and event handlers for handling requests and user creation events.
+- **AppService**: Handles business logic, including handling user creation events.
+- **CreateUserEvent**: Event class representing the creation of a user.
+- **AppModule**: Configures the Nest.js application module, registering controllers and services.
+- **main.ts**: Bootstraps the Nest.js application as a microservice, connecting via TCP and listening on a port.
 
-## sample-backend Project Explanation:
+## Order of Execution:
+1. The Nest.js application is bootstrapped as a microservice.
+2. The application starts listening for HTTP requests and events related to user creation.
+3. When a `user_created` event is received, appropriate actions are taken, e.g., sending an email to the user.
 
-In this project, you're creating a Nest.js application that acts as a backend service.
+# Summary:
 
-# app.controller.ts: 
-Defines the main controller for handling HTTP requests and calling the appropriate service methods based on the route. It has routes for handling GET (root and /analytics) and POST requests.
+## Interconnected Microservices:
+- These projects represent individual microservices within a larger microservices architecture.
+- Each microservice has a specific purpose and communicates with other microservices through events and HTTP requests.
 
+## Decomposition of Functionality:
+- The functionalities are broken down into smaller, manageable units (microservices), allowing for independent development, scalability, and maintenance.
 
+## Event-Driven Communication:
+- Microservices communicate via events (e.g., `user_created`) to achieve loose coupling and asynchronous processing.
 
-```typescript
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { AppService } from './app.service';
-import { CreateUserRequest } from './create-user-request.dto';
-
-@Controller()  // Decorator to define a controller
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()  // Decorator for handling HTTP GET requests at the root route '/'
-  getHello(): string {
-    return this.appService.getHello();  // Calls a service method to get a "Hello World!" message
-  }
-
-  @Post()  // Decorator for handling HTTP POST requests at the root route '/'
-  createUser(@Body() createUserRequest: CreateUserRequest) {
-    this.appService.createUser(createUserRequest);  // Calls a service method to create a user
-  }
-
-  @Get('analytics')  // Decorator for handling HTTP GET requests at the route '/analytics'
-  getAnalytics() {
-    return this.appService.getAnalytics();  // Calls a service method to get analytics data
-  }
-}
-
-```
-
-# app.service.ts: 
-Defines the service containing the business logic. It interacts with clients using Nest.js' ClientProxy from @nestjs/microservices. It handles creating a user and interacting with other microservices.
-
-```typescript
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { CreateUserRequest } from './create-user-request.dto';
-import { CreateUserEvent } from './create-user.event';
-
-@Injectable()  // Decorator to indicate that this class can be injected into other components
-export class AppService {
-  private readonly users: any[] = [];  // Array to store user data
-
-  constructor(
-    @Inject('COMMUNICATION') private readonly communicationClient: ClientProxy,  // Injecting communicationClient
-    @Inject('ANALYTICS') private readonly analyticsClient: ClientProxy,  // Injecting analyticsClient
-  ) {}
-
-  getHello(): string {
-    return 'Hello World!';  // Returns a "Hello World!" message
-  }
-
-  createUser(createUserRequest: CreateUserRequest) {
-    // Adds the user data to the users array
-    this.users.push(createUserRequest);
-
-    // Emits a 'user_created' event to the communicationClient and analyticsClient
-    this.communicationClient.emit(
-      'user_created',
-      new CreateUserEvent(createUserRequest.email),
-    );
-    this.analyticsClient.emit(
-      'user_created',
-      new CreateUserEvent(createUserRequest.email),
-    );
-  }
-
-  getAnalytics() {
-    // Sends a message to the analyticsClient to get analytics data
-    return this.analyticsClient.send({ cmd: 'get_analytics' }, {});
-  }
-}
-
-```
-
-## create-user.event.ts:
- Defines an event class for creating a user.
-
- ```typescript
-export class CreateUserEvent {
-  constructor(public readonly email: string) {}
-}
-```
-
-## app.module.ts: 
-Configures the Nest.js application module, registering necessary controllers, services, and microservices.
-
- ```typescript
-import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-@Module({
-  imports: [
-    // Registers the microservices clients
-    ClientsModule.register([
-      {
-        name: 'COMMUNICATION',  // Name of the communication microservice client
-        transport: Transport.TCP,  // Transport protocol used (TCP)
-      },
-      {
-        name: 'ANALYTICS',  // Name of the analytics microservice client
-        transport: Transport.TCP,  // Transport protocol used (TCP)
-        options: { port: 3001 },  // Additional options (port) for analytics microservice
-      },
-    ]),
-  ],
-  controllers: [AppController],  // Specifies the controllers used in this module
-  providers: [AppService],  // Specifies the providers (services) used in this module
-})
-export class AppModule {}
-
-```
+## API Exposition:
+- Each microservice exposes APIs to handle specific functionality (e.g., user creation, analytics retrieval) that can be accessed by other parts of the system.
