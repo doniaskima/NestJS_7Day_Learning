@@ -265,5 +265,63 @@ In the above example:
 listenTo() method specifies the entity to listen for events.
 beforeInsert() method is an event handler that is executed before an entity is inserted.
 
-![Subscriber 1](Screenshots/subscriber-2.png)
-![Subscriber 2](Screenshots/subscriber.png)
+
+
+| ![Subscriber 1](Screenshots/subscriber-2.png) | ![Subscriber 2](Screenshots/subscriber.png) |
+|----------------------------------------------|--------------------------------------------|
+
+
+# Migrations in NestJS with TypeORM
+
+Migrations are an essential tool in database management, especially in the context of NestJS with TypeORM. This README provides an understanding of what migrations are and why we use them in NestJS projects with TypeORM.
+
+## What are Migrations?
+
+In software development, especially when working with databases, a "migration" is a structured way to manage and version the changes made to the database schema over time. It's a script that describes the changes to be made to the database, including creating or modifying tables, columns, indexes, and more.
+
+## Why Use Migrations?
+
+Migrations offer several benefits:
+
+1. **Version Control for Database Schema**: Migrations provide a version control system for your database schema. Each migration is a versioned change, allowing you to track how the database has evolved.
+
+2. **Database Schema Evolution**: As your application evolves, so does the data model. Migrations help in managing the evolution of the database schema, ensuring that changes are applied in a structured and consistent manner.
+
+3. **Collaboration and Deployment**: With migrations, it's easy for multiple developers to collaborate on a project and apply changes to the database schema in a controlled way. It also simplifies database schema updates in different environments (e.g., development, staging, production).
+
+4. **Rollback and Recovery**: Migrations are reversible. You can undo a migration (rollback) to revert the changes made to the database. This feature is crucial for maintaining data integrity during development and deployment.
+
+5. **Database Initialization**: Migrations can include initial data seeding, ensuring that the database starts with the required data structure and initial content.
+
+## Using Migrations in NestJS with TypeORM
+
+TypeORM provides powerful migration capabilities. Here's a basic overview of how to use migrations in a NestJS application:
+
+1. **Generate a Migration**: Use TypeORM CLI to generate a migration file based on the changes you've made to the entities or data model.
+
+2. **Run Migrations**: Apply the generated migration to update the database schema to the desired state.
+
+3. **Rollback Migrations**: If needed, rollback a migration to revert the changes made to the database.
+
+## Example Usage
+
+1. **Generate a Migration**:
+   ```bash
+   npx typeorm migration:generate -n CreateUsersTable
+ ```
+
+ Run Migrations:
+    ```bash
+  npx typeorm migration:run
+
+ ```
+
+ 
+
+## Conclusion
+Migrations are a fundamental tool for managing database schema changes in a structured and consistent manner. In NestJS with TypeORM, they help version and manage the evolution of your database, making it an indispensable tool in modern software development.
+
+
+| ![Subscriber 1](Screenshots/migration-1.png) | ![Subscriber 2](Screenshots/migration-2.png) | ![Subscriber 2](Screenshots/migration-3.png) | ![Subscriber 2](Screenshots/migration-5.png)
+|----------------------------------------------|--------------------------------------------|--------------------------------------------|--------------------------------------------|
+
