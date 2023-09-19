@@ -1,21 +1,29 @@
-import { BullModule } from '@nestjs/bull'; // Import BullModule from the '@nestjs/bull' package
-import { Module } from '@nestjs/common'; // Import Module from the '@nestjs/common' package
-import { AppController } from './app.controller'; // Import the AppController from './app.controller'
-import { AppService } from './app.service'; // Import the AppService from './app.service'
+import { BullModule } from '@nestjs/bull';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TRANSCODE_QUEUE } from './constants';
+import { TranscodeConsumer } from './transcode.consumer';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost', // Redis server host
-        port: 6379, // Redis server port
-      },
+    ConfigModule.forRoot(),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
     }),
     BullModule.registerQueue({
-      name: 'transcode', // Name of the Bull queue ('transcode')
+      name: TRANSCODE_QUEUE,
     }),
   ],
-  controllers: [AppController], // Declare the controllers used in this module
-  providers: [AppService], // Declare the providers (services) used in this module
+  controllers: [AppController],
+  providers: [AppService, TranscodeConsumer],
 })
-export class AppModule {} // Export the AppModule class
+export class AppModule {}

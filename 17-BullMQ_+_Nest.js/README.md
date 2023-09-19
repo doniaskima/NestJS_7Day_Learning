@@ -1,5 +1,8 @@
 # NestJS and BullMQ: An Overview
 
+# BullMQ & Nest.js = Achieving Scale in Node.js
+
+
 This README provides an introduction to NestJS, a powerful Node.js framework, and BullMQ, a robust Redis-based job queue. Learn how to integrate and leverage BullMQ within a NestJS application to manage background tasks efficiently.
 
 ## NestJS: A Powerful Node.js Framework
