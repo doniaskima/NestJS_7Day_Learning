@@ -1,15 +1,14 @@
+import { UseGuards } from '@nestjs/common';
 import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WebSocketServer,
   NestGateway,
+  SubscribeMessage,
+  WebSocketGateway
 } from '@nestjs/websockets';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/map';
-import { UseGuards } from '@nestjs/common';
-import { Roles } from '../Shared/decorators/roles.decorator';
-import { WebSocketRolesGuard } from '../Shared/Guards/webSocket.roles.guard';
 import { Socket } from 'socket.io'; // Update: import Socket from 'socket.io'
+import { WebSocketRolesGuard } from '../Shared/Guards/webSocket.roles.guard';
+import { Roles } from '../Shared/decorators/roles.decorator';
 
 @WebSocketGateway({ port: 81, namespace: 'messages' })
 @UseGuards(WebSocketRolesGuard)
