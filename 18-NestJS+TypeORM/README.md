@@ -156,3 +156,80 @@ Querying: Use TypeORM's repository functions to query and filter based on relate
 
 ## Conclusion
 TypeORM simplifies working with databases by allowing you to define and manage relationships in a more intuitive, object-oriented way. Utilize the examples and patterns provided to effectively work with various types of relationships in your applications.
+
+# Screenshots
+
+| Screenshot 1 | Screenshot 2 | Screenshot 3 | Screenshot 4 | Screenshot 5 | Screenshot 6 |
+|--------------|--------------|--------------|--------------|--------------|--------------|
+| ![Screenshot 1](Screenshots/typeorm1.png) | ![Screenshot 2](Screenshots/typeorm2.png) | ![Screenshot 3](Screenshots/typeorm3.png) | ![Screenshot 4](Screenshots/typeorm4.png) | ![Screenshot 5](Screenshots/typeorm5.png) | ![Screenshot 6](Screenshots/typeorm6.png) |
+
+
+# Transactions in TypeORM and NestJS
+
+In the context of TypeORM and NestJS, transactions refer to a set of database operations that are performed as a single unit, ensuring data consistency and reliability. Transactions are essential for managing complex operations in a database where multiple actions need to be completed together or rolled back entirely in case of failure.
+
+## Setting up a Transaction in TypeORM
+
+To perform a transaction in TypeORM, you typically follow these steps:
+
+1. **Begin a Transaction**: Start a transaction using the `EntityManager` or `Repository`.
+
+```typescript
+const transactionEntityManager = getManager();
+await transactionEntityManager.transaction(async transactionalEntityManager => {
+  // Your transactional operations
+});
+```
+
+Perform Transactional Operations: Within the transaction, perform your desired database operations.
+
+Commit the Transaction: If all operations are successful, commit the transaction.
+
+```typescript
+await transactionalEntityManager.commitTransaction();
+
+```
+
+Rollback the Transaction: If any operation fails, rollback the transaction to maintain data integrity.
+
+```typescript
+await transactionalEntityManager.rollbackTransaction();
+```
+
+## Using Transactions in NestJS with TypeORM
+
+In NestJS, you can create a service method that encapsulates your transaction logic:
+```typescript
+import { Injectable } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
+import { InjectEntityManager } from '@nestjs/typeorm';
+
+@Injectable()
+export class YourService {
+  constructor(@InjectEntityManager() private entityManager: EntityManager) {}
+
+  async performTransaction(): Promise<void> {
+    const queryRunner = this.entityManager.queryRunner;
+
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      // Perform your transactional operations
+      // Example: await queryRunner.query('INSERT INTO ...');
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new Error('Transaction failed. Rolled back.');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+}
+
+```
+
+## Conclusion
+Transactions in TypeORM and NestJS are crucial for maintaining data consistency and ensuring that complex database operations are executed reliably. Utilize the provided examples to set up and manage transactions effectively in your applications.
+
