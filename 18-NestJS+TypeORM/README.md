@@ -312,9 +312,9 @@ TypeORM provides powerful migration capabilities. Here's a basic overview of how
 
  Run Migrations:
     ```bash
-  npx typeorm migration:run
-
+     npx typeorm migration:run
  ```
+
 
  
 
@@ -324,4 +324,10 @@ Migrations are a fundamental tool for managing database schema changes in a stru
 
 | ![Subscriber 1](Screenshots/migration-1.png) | ![Subscriber 2](Screenshots/migration-2.png) | ![Subscriber 2](Screenshots/migration-3.png) | ![Subscriber 2](Screenshots/migration-5.png)
 |----------------------------------------------|--------------------------------------------|--------------------------------------------|--------------------------------------------|
+
+
+## Test
+
+| ![Subscriber 1](Screenshots/test-1.png) | ![Subscriber 2](Screenshots/test-2.png) 
+|----------------------------------------------|--------------------------------------------|
 
