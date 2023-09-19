@@ -233,3 +233,37 @@ export class YourService {
 ## Conclusion
 Transactions in TypeORM and NestJS are crucial for maintaining data consistency and ensuring that complex database operations are executed reliably. Utilize the provided examples to set up and manage transactions effectively in your applications.
 
+![Transacrion 1](Screenshots/Transacrion.png)
+
+# TypeORM Subscriber
+
+In TypeORM, a subscriber is a class that can listen to specific entity events or any entity events. When a particular event is triggered, the subscriber can execute custom logic. This README provides an overview of creating and using a subscriber in TypeORM.
+
+## What is a Subscriber?
+
+A subscriber is a TypeScript class that is decorated with `@EventSubscriber()`. This decorator marks the class as an event subscriber, allowing it to listen to specific entity events or all entity events. Subscribers can execute custom logic before or after these events occur.
+
+```typescript
+import { EventSubscriber, EntitySubscriberInterface, InsertEvent } from 'typeorm';
+import { YourEntity } from './your-entity.entity';
+
+@EventSubscriber()
+export class YourEntitySubscriber implements EntitySubscriberInterface<YourEntity> {
+  listenTo() {
+    return YourEntity;
+  }
+
+  beforeInsert(event: InsertEvent<YourEntity>): void {
+    // Custom logic before an entity of type YourEntity is inserted
+  }
+}
+```
+
+In the above example:
+
+@EventSubscriber() decorator marks the class as an event subscriber.
+listenTo() method specifies the entity to listen for events.
+beforeInsert() method is an event handler that is executed before an entity is inserted.
+
+![Subscriber 1](Screenshots/subscriber-2.png)
+![Subscriber 2](Screenshots/subscriber.png)
