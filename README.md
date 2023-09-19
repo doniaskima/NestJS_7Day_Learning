@@ -1,4 +1,4 @@
-# 3-Day Learning Challenge README
+# 7-Day Learning Challenge README
 
 ## Introduction
 
@@ -6,13 +6,13 @@ Welcome to my 3-day learning challenge! In the next 3 days, I will be pushing my
 
 ## Challenge Overview
 
-**Duration**: 3 days
+**Duration**: 7 days
 
 **Objective**: To gain an introductory understanding of key web development technologies and concepts.
 
 ## Goals
 
-During this 3-day challenge, I will focus on gaining a basic understanding of the following technologies and concepts:
+During this 7-day challenge, I will focus on gaining a basic understanding of the following technologies and concepts:
 
 1. **NestJS**: I will aim to grasp the fundamental concepts of NestJS, including its architecture, modules, controllers, and services.
 
@@ -58,6 +58,5 @@ I will update this README daily with progress reports, code snippets, and any ch
 
 This 3-day learning challenge is an ambitious endeavor, and I look forward to gaining an introductory understanding of these technologies and concepts. Let's make the most of these three days of focused learning!
 
-**Start Date**: [12/09/2023]
+ 
 
-**End Date**: [15/09/2023]
