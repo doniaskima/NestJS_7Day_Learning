@@ -1,73 +1,75 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Caching with Redis - README
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This repository demonstrates the implementation of caching in a NestJS application using Redis and `@nestjs/cache-manager`. Caching is a technique used to store frequently accessed data in a cache, reducing the need to fetch it from the original data source repeatedly. `@nestjs/cache-manager` simplifies caching in NestJS applications by providing a convenient interface to work with various caching stores like Redis.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Benefits of `@nestjs/cache-manager`
 
-## Description
+- **Simplified Cache Management**: `@nestjs/cache-manager` simplifies caching implementation by providing a clean and easy-to-use API to interact with caching stores.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Multi-Store Support**: It allows for the usage of multiple caching stores, including Redis, memory, and more. This flexibility enables choosing the most suitable caching store for specific use cases.
 
-## Installation
+- **Decorator-based Caching**: By utilizing decorators like `@CacheTTL`, `@CacheKey`, and `@UseInterceptors(CacheInterceptor)`, you can easily implement caching at the method level, providing fine-grained control over caching configurations.
 
-```bash
-$ npm install
-```
+- **Efficient Caching Strategies**: With the ability to set time-to-live (TTL) for cached data and cache invalidation strategies, you can optimize your caching approach and ensure data consistency.
 
-## Running the app
+## Code Overview
 
-```bash
-# development
-$ npm run start
+### `AppController` (app.controller.ts)
 
-# watch mode
-$ npm run start:dev
+This controller handles HTTP requests and interacts with the `AppService`.
 
-# production mode
-$ npm run start:prod
-```
+- **`@Get()`:** This decorator defines a handler for HTTP GET requests to the root endpoint.
+- **`getHello()`:** This method is invoked for a GET request and returns the result from the `AppService.getHello()`.
 
-## Test
+| ![Screenshot 1](Screenshots/redis-6.png) |
 
-```bash
-# unit tests
-$ npm run test
+### `AppService` (app.service.ts)
 
-# e2e tests
-$ npm run test:e2e
+This service contains the business logic and interacts with an external API using Axios.
 
-# test coverage
-$ npm run test:cov
-```
+- **`getHello()`:** This method fetches data from an API (JSONPlaceholder) and caches the response for 60 seconds using `@nestjs/cache-manager`.
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| ![Screenshot 2](Screenshots/redis-7.png) |
 
-## Stay in touch
+## Setting Up and Running the Application
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Clone the repository:
+   ```bash
+   git clone <repository_url>
+   cd nestjs-caching-with-redis
+    ```
 
-## License
+## Testing Caching
 
-Nest is [MIT licensed](LICENSE).
+Access the application at http://localhost:3000.
+
+Multiple requests to the root endpoint (http://localhost:3000) will demonstrate cache hits and misses based on the defined caching strategies.
+
+## Additional Notes
+Ensure that a Redis server is running locally or adjust the Redis configuration in src/app.module.ts as needed.
+Customize the caching strategies and configurations in AppService and AppModule based on your application requirements.
+
+| ![Screenshot 3](Screenshots/redis-4.png) |
+
+
+## Testing Caching and Response Time Differences
+
+When testing the application using Postman, you may observe differences in response times due to caching:
+
+First Request after Application Start:
+
+Initial request after starting the application may not benefit from caching as the cache is empty.
+Response time will include the time taken to fetch data from the API and populate the cache.
+Subsequent Requests within the Cache TTL:
+
+For requests made within the cache's time-to-live (TTL), the response time will be significantly faster.
+The application will fetch the data from the cache, resulting in a faster response compared to fetching it from the API.
+Requests after Cache TTL Expires:
+
+After the cache TTL expires, the next request will experience a delay similar to the first request.
+The application will fetch the data from the API, and the response time will include the API request time.
+By observing these scenarios in Postman, you can appreciate how caching optimizes response times, especially for frequently accessed data within the cache TTL.
+
+| ![Screenshot 4](Screenshots/redis-1.png) |
+| ![Screenshot 5](Screenshots/redis-2.png) |
