@@ -21,7 +21,7 @@ This controller handles HTTP requests and interacts with the `AppService`.
 - **`@Get()`:** This decorator defines a handler for HTTP GET requests to the root endpoint.
 - **`getHello()`:** This method is invoked for a GET request and returns the result from the `AppService.getHello()`.
 
-![AppController](Screenshots/redis-6.png)
+![AppController](screenshots/redis-6.png)
 
 ### `AppService` (app.service.ts)
 
@@ -30,7 +30,7 @@ This service contains the business logic and interacts with an external API usin
 - **`getHello()`:** This method fetches data from an API (JSONPlaceholder) and caches the response for 60 seconds using `@nestjs/cache-manager`.
 
 
-![AppService](Screenshots/redis-7.png)
+![AppService](screenshots/redis-7.png)
 
 ## Setting Up and Running the Application
 
@@ -50,7 +50,7 @@ Multiple requests to the root endpoint (http://localhost:3000) will demonstrate 
 Ensure that a Redis server is running locally or adjust the Redis configuration in src/app.module.ts as needed.
 Customize the caching strategies and configurations in AppService and AppModule based on your application requirements.
 
-![Additional](Screenshots/redis-4.png) 
+![Additional](screenshots/redis-4.png) 
 
 
 ## Testing Caching and Response Time Differences
@@ -71,5 +71,5 @@ After the cache TTL expires, the next request will experience a delay similar to
 The application will fetch the data from the API, and the response time will include the API request time.
 By observing these scenarios in Postman, you can appreciate how caching optimizes response times, especially for frequently accessed data within the cache TTL.
 
-![screenshots 4](Screenshots/redis-1.png) 
-![screenshots 5](Screenshots/redis-2.png) 
+![screenshots 4](screenshots/redis-1.png) 
+![screenshots 5](screenshots/redis-2.png) 
